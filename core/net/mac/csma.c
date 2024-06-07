@@ -132,6 +132,13 @@ LIST(neighbor_list);
 
 static void packet_sent(void *ptr, int status, int num_transmissions);
 static void transmit_packet_list(void *ptr);
+
+/*---------------------------------------------------------------------------*/
+int csma_queue_length()
+{
+  return memb_numfree(&packet_memb) ;
+  // return MAX_QUEUED_PACKETS ;
+}
 /*---------------------------------------------------------------------------*/
 static struct neighbor_queue *
 neighbor_queue_from_addr(const linkaddr_t *addr)

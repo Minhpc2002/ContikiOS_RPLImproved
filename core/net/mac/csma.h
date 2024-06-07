@@ -48,4 +48,6 @@ extern const struct mac_driver csma_driver;
 
 const struct mac_driver *csma_init(const struct mac_driver *r);
 
+int csma_queue_length() ;
+
 #endif /* CSMA_H_ */
