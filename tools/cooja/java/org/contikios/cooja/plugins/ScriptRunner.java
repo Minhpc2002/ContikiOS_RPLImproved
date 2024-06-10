@@ -348,7 +348,7 @@ public class ScriptRunner extends VisPlugin {
               logFile.delete();
             }
             logWriter = new BufferedWriter(new FileWriter(logFile));
-            logWriter.write("Random seed: " + simulation.getRandomSeed() + "\n");
+            // logWriter.write("Random seed: " + simulation.getRandomSeed() + "\n");
             logWriter.flush();
           }
           engine.setScriptLogObserver(new Observer() {
