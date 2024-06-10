@@ -48,6 +48,13 @@
 /*---------------------------------------------------------------------------*/
 typedef uint16_t rpl_rank_t;
 typedef uint16_t rpl_ocp_t;
+
+/* Added by MinhPC-----------------------------------------------------------*/
+#define RPL_OF_ETX_IM_NONE      0
+#define RPL_OF_ETX_IM_EE        1
+#define RPL_OF_ETX_IM_RDC       2
+#define RPL_OF_ETX_IM_QU        3
+
 /*---------------------------------------------------------------------------*/
 /* IANA Routing Metric/Constraint Type as defined in RFC6551 */
 #define RPL_DAG_MC_NONE			            0 /* Local identifier for empty MC */

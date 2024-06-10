@@ -88,6 +88,28 @@ to the threshold of 96 in the non-squared case) */
 /* Reject parents that have a higher path cost than the following. */
 #define MAX_PATH_COST      32768   /* Eq path ETX of 256 */
 
+
+
+/* Add by MinhPC ------------------------------------------------------------*/
+#ifdef RPL_OF_ETX_IM
+int get_my_energy()
+{
+  #if RPL_OF_ETX_IM == RPL_OF_ETX_IM_NONE
+  return 0 ;
+  #elif RPL_OF_ETX_IM == RPL_OF_ETX_IM_EE
+  extern int energy_percent ;
+  return (100 - energy_percent) * K_FACTOR ;
+  #elif RPL_OF_ETX_IM == RPL_OF_ETX_IM_RDC
+  extern uint32_t radio_duty_cycle ;
+  return radio_duty_cycle ;
+  #elif RPL_OF_ETX_IM == RPL_OF_ETX_IM_QU
+  extern int queue_percent ;
+  return queue_percent * Q_FACTOR ;
+  #endif
+  
+}
+#endif
+
 /*---------------------------------------------------------------------------*/
 static void
 reset(rpl_dag_t *dag)
@@ -278,7 +300,19 @@ update_metric_container(rpl_instance_t *instance)
       break;
     case RPL_DAG_MC_ETX:
       instance->mc.length = sizeof(instance->mc.obj.etx);
+      /* Add by MinhPC ------------------------------------------------------*/
+      #ifdef RPL_OF_ETX_IM
+        if( dag->rank == ROOT_RANK(instance))
+        {
+          instance->mc.obj.etx = path_cost;
+        }
+        else{
+          instance->mc.obj.etx = path_cost + get_my_energy() ;
+        }
+      #else
       instance->mc.obj.etx = path_cost;
+      #endif
+      /* --------------------------------------------------------------------*/
       break;
     case RPL_DAG_MC_ENERGY:
       instance->mc.length = sizeof(instance->mc.obj.energy);
@@ -289,7 +323,14 @@ update_metric_container(rpl_instance_t *instance)
       }
       instance->mc.obj.energy.flags = type << RPL_DAG_MC_ENERGY_TYPE;
       /* Energy_est is only one byte, use the least significant byte of the path metric. */
+      
+      /* Add by MinhPC ------------------------------------------------------*/
+      #ifdef RPL_OF_ETX_IM
+      instance->mc.obj.energy.energy_est = (path_cost + get_my_energy() ) >> 8;
+      #else
       instance->mc.obj.energy.energy_est = path_cost >> 8;
+      #endif
+      /*---------------------------------------------------------------------*/
       break;
     default:
       PRINTF("RPL: MRHOF, non-supported MC %u\n", instance->mc.type);
