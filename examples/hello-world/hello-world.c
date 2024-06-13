@@ -48,7 +48,10 @@ PROCESS_THREAD(hello_world_process, ev, data)
 {
   PROCESS_BEGIN();
 
-  printf("Hello, world\n");
+  printf("Hello, Minh\n");
+  unsigned long cs = RTIMER_SECOND ;
+  printf("some things") ;
+  printf("clock second: %lu\n", cs) ;
   
   PROCESS_END();
 }

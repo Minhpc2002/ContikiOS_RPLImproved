@@ -93,6 +93,9 @@
 #define CSMA_MAX_MAX_FRAME_RETRIES 7
 #endif
 
+
+
+
 /* Packet metadata */
 struct qbuf_metadata {
   mac_callback_t sent;
@@ -133,13 +136,40 @@ LIST(neighbor_list);
 static void packet_sent(void *ptr, int status, int num_transmissions);
 static void transmit_packet_list(void *ptr);
 
+
+/* Added by MinhPC ---------------------------------------------------*/
+uint16_t droped_packets = 0 ;
+int qu_percent = 0 ;
+#define QUEUE_EWMA_ALP 100
 /*---------------------------------------------------------------------------*/
 int csma_queue_length()
 {
   return memb_numfree(&packet_memb) ;
   // return MAX_QUEUED_PACKETS ;
 }
+
+void update_queue_percent()
+{
+  // static clock_time_t last_updated = 0 ;
+  // int interval = clock_time() - last_updated ;
+  // last_updated = clock_time() 
+
+  int ewma_alpha = 100 ;
+  
+  // int ewma_alpha = 10 + QUEUE_EWMA_ALP * 15 / interval ;
+  // if(ewma_alpha > 100)  ewma_alpha = 100 ;
+
+  int new_q = (MAX_QUEUED_PACKETS - memb_numfree(&packet_memb)) * 100 / MAX_QUEUED_PACKETS ;
+  qu_percent =  ( qu_percent * (100 - ewma_alpha) + new_q * ewma_alpha  ) / 100 ;
+  ;
+  // printf("qu: %d\n", qu_percent) ;
+}
+
+
 /*---------------------------------------------------------------------------*/
+
+
+
 static struct neighbor_queue *
 neighbor_queue_from_addr(const linkaddr_t *addr)
 {
@@ -259,7 +289,11 @@ tx_done(int status, struct rdc_buf_list *q, struct neighbor_queue *n)
     break;
   }
 
+
   free_packet(n, q, status);
+  /* Added by MinhPC */
+  update_queue_percent() ;
+  /* --------------- */
   mac_call_sent_callback(sent, cptr, status, ntx);
 }
 /*---------------------------------------------------------------------------*/
@@ -411,6 +445,9 @@ send_packet(mac_callback_t sent, void *ptr)
   if(n != NULL) {
     /* Add packet to the neighbor's queue */
     if(list_length(n->queued_packet_list) < CSMA_MAX_PACKET_PER_NEIGHBOR) {
+        /* Added by MinhPC */
+        // update_queue_percent() ;
+        /* ----------------*/
       q = memb_alloc(&packet_memb);
       if(q != NULL) {
         q->ptr = memb_alloc(&metadata_memb);
@@ -450,6 +487,7 @@ send_packet(mac_callback_t sent, void *ptr)
           PRINTF("csma: could not allocate queuebuf, dropping packet\n");
         }
         memb_free(&packet_memb, q);
+        
         PRINTF("csma: could not allocate queuebuf, dropping packet\n");
       }
       /* The packet allocation failed. Remove and free neighbor entry if empty. */
@@ -460,6 +498,9 @@ send_packet(mac_callback_t sent, void *ptr)
     } else {
       PRINTF("csma: Neighbor queue full\n");
     }
+    /* Added by MinhPC*/
+    droped_packets ++ ;
+    /*---------------*/
     PRINTF("csma: could not allocate packet, dropping packet\n");
   } else {
     PRINTF("csma: could not allocate neighbor, dropping packet\n");
