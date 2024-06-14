@@ -106,7 +106,7 @@ int get_my_energy()
   // extern int queue_percent ;
   // return queue_percent * Q_FACTOR ;
   extern int qu_percent ;
-  return qu_percent * Q_FACTOR ;
+  return qu_percent * Q_FACTOR / 100 ;
   #endif
   
 }

@@ -154,7 +154,7 @@ void update_queue_percent()
   // int interval = clock_time() - last_updated ;
   // last_updated = clock_time() 
 
-  int ewma_alpha = 100 ;
+  int ewma_alpha = 97 ;
   
   // int ewma_alpha = 10 + QUEUE_EWMA_ALP * 15 / interval ;
   // if(ewma_alpha > 100)  ewma_alpha = 100 ;
