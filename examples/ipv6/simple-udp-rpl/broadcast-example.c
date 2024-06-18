@@ -48,6 +48,9 @@
 #define SEND_INTERVAL		(20 * CLOCK_SECOND)
 #define SEND_TIME		(random_rand() % (SEND_INTERVAL))
 
+#define DEBUG DEBUG_PRINT
+#include "net/ip/uip-debug.h"
+
 static struct simple_udp_connection broadcast_connection;
 
 /*---------------------------------------------------------------------------*/
@@ -65,6 +68,10 @@ receiver(struct simple_udp_connection *c,
 {
   printf("Data received on port %d from port %d with length %d\n",
          receiver_port, sender_port, datalen);
+  PRINT6ADDR(sender_addr);
+  printf("\n") ;
+  PRINT6ADDR(receiver_addr);
+  printf("\n") ;
 }
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(broadcast_example_process, ev, data)

@@ -140,24 +140,12 @@ static void transmit_packet_list(void *ptr);
 /* Added by MinhPC ---------------------------------------------------*/
 uint16_t droped_packets = 0 ;
 int qu_percent = 0 ;
-#define QUEUE_EWMA_ALP 100
 /*---------------------------------------------------------------------------*/
-int csma_queue_length()
-{
-  return memb_numfree(&packet_memb) ;
-  // return MAX_QUEUED_PACKETS ;
-}
 
 void update_queue_percent()
 {
-  // static clock_time_t last_updated = 0 ;
-  // int interval = clock_time() - last_updated ;
-  // last_updated = clock_time() 
 
-  int ewma_alpha = 97 ;
-  
-  // int ewma_alpha = 10 + QUEUE_EWMA_ALP * 15 / interval ;
-  // if(ewma_alpha > 100)  ewma_alpha = 100 ;
+  static int ewma_alpha = 97 ;
 
   int new_q = (MAX_QUEUED_PACKETS - memb_numfree(&packet_memb)) * 100 / MAX_QUEUED_PACKETS ;
   qu_percent =  ( qu_percent * (100 - ewma_alpha) + new_q * ewma_alpha  ) / 100 ;

@@ -262,7 +262,7 @@
  * @{
  */
 #ifndef ENERGEST_CONF_ON
-#define ENERGEST_CONF_ON            0 /**< Energest Module */
+#define ENERGEST_CONF_ON            1 /**< Energest Module */
 #endif
 /** @} */
 /*---------------------------------------------------------------------------*/

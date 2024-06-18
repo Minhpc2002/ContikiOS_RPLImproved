@@ -91,69 +91,9 @@ to the threshold of 96 in the non-squared case) */
 
 
 /* Add by MinhPC ------------------------------------------------------------*/
+
 #ifdef RPL_OF_ETX_IM
-int get_my_energy()
-{
-  #if RPL_OF_ETX_IM == RPL_OF_ETX_IM_NONE
-  return 0 ;
-  #elif RPL_OF_ETX_IM == RPL_OF_ETX_IM_EE
-  extern int energy_percent ;
-  return (100 - energy_percent) * K_FACTOR ;
-  #elif RPL_OF_ETX_IM == RPL_OF_ETX_IM_RDC
-  extern uint32_t radio_duty_cycle ;
-  return radio_duty_cycle ;
-  #elif RPL_OF_ETX_IM == RPL_OF_ETX_IM_QU
-  // extern int queue_percent ;
-  // return queue_percent * Q_FACTOR ;
-  extern int qu_percent ;
-  return qu_percent * Q_FACTOR / 100 ;
-  #endif
-  
-}
-#include "energest.h"
-
-unsigned long calc_rdc()
-{
-  static unsigned long last_cpu, last_lpm, last_transmit, last_listen;
-  static unsigned long last_check ;
-  static unsigned long radio_duty_cycle ;
-  unsigned long cpu, lpm, transmit, listen;
-  unsigned long all_cpu, all_lpm, all_transmit, all_listen;
-  unsigned long time ;
-
-  unsigned long now ;
-  now = clock_time() ;
-
-  if ((now - last_check)/ CLOCK_SECOND > 1 )
-  {
-    // Update radio duty cycle value
-    last_check = now ;
-
-    energest_flush();
-
-    all_cpu = energest_type_time(ENERGEST_TYPE_CPU);
-    all_lpm = energest_type_time(ENERGEST_TYPE_LPM);
-    all_transmit = energest_type_time(ENERGEST_TYPE_TRANSMIT);
-    all_listen = energest_type_time(ENERGEST_TYPE_LISTEN);
-
-    cpu = all_cpu - last_cpu;
-    lpm = all_lpm - last_lpm;
-    transmit = all_transmit - last_transmit;
-    listen = all_listen - last_listen;
-    time = cpu + lpm;
-
-    radio_duty_cycle = (transmit + listen) * 100L * RDC_FACTOR / time ;
-
-    last_cpu = energest_type_time(ENERGEST_TYPE_CPU);
-    last_lpm = energest_type_time(ENERGEST_TYPE_LPM);
-    last_transmit = energest_type_time(ENERGEST_TYPE_TRANSMIT);
-    last_listen = energest_type_time(ENERGEST_TYPE_LISTEN);
-
-    // printf("rdc: %lu\n", radio_duty_cycle) ;
-  }
-
-  return radio_duty_cycle ;
-}
+#include "energy-calculation.h"
 #endif
 
 /*---------------------------------------------------------------------------*/
@@ -354,7 +294,7 @@ update_metric_container(rpl_instance_t *instance)
         }
         else{
           instance->mc.obj.etx = path_cost + get_my_energy() ;
-          // instance->mc.obj.etx = path_cost + calc_rdc() ;
+          
         }
       #else
       instance->mc.obj.etx = path_cost;
